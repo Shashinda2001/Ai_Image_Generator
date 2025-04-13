@@ -1,14 +1,15 @@
- 
- 
+
+
 import React from 'react'
 import styled from 'styled-components';
-import {AddRounded} from "@mui/icons-material";
+import { AddRounded, ExploreRounded } from "@mui/icons-material";
 import Button from "./button";
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const Container =styled.div`
+const Container = styled.div`
 flex:1;
-background: ${({theme})=>theme.Navbar};
-color: ${({theme})=>theme.text_primary};
+background: ${({ theme }) => theme.Navbar};
+color: ${({ theme }) => theme.text_primary};
 font-weight:bold;
 font-size:22px;
 padding:14px 50px;
@@ -21,16 +22,40 @@ padding:10px 12px;
 }
 `;
 
-const Navbar=()=> {
-  return  <Container>
-    GenAI
-    <Button text="Create new post" leftIcon={<AddRounded
-    style={{fontSize:"18px",
+const Navbar = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const path = location.pathname.split("/");
+    return(
+    <Container>
+        GenAI
+        {
+            path[1] === "post" ? 
+                ( 
+                    <Button
+                    onClick={() => navigate("/")}
+                    text="Explore Posts" leftIcon={<ExploreRounded
+                        style={{
+                            fontSize: "18px",
 
-    }}
-    />}/>
-    </Container>;
-  
+                        }}
+                    />} 
+                    type="secondary"
+                    />
+                ) :
+
+                (
+                    <Button
+                        onClick={() => navigate("/post")}
+                        text="Create new post" leftIcon={<AddRounded
+                            style={{
+                                fontSize: "18px",
+
+                            }}
+                        />} />
+
+                )} </Container>);
+
 };
 
-export default  Navbar;
+export default Navbar;
