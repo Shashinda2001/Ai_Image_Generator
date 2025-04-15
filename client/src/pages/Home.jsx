@@ -1,14 +1,16 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 
 
 import SearchBar from '../components/SearchBar';
 import ImageCard from '../components/ImageCard';
+import { CircularProgress, filledInputClasses } from '@mui/material';
+import { GetPosts } from '../api';
 
-const Container =styled.div`
+const Container = styled.div`
 height:100%;
 overflow-y:scroll;
-background :${({theme})=>theme.bg}
+background :${({ theme }) => theme.bg}
 padding-bottom:50px;
 display:flex;
 flex-direction:column;
@@ -19,10 +21,10 @@ padding:6px 10px;
 }
 `;
 
-const Headline=styled.div`
+const Headline = styled.div`
 font-size:34px;
 font-weight:500;
-color:${({theme})=>theme.text_primary};
+color:${({ theme }) => theme.text_primary};
 display:flex;
 flex-direction:column;
 align-items:center;
@@ -32,16 +34,16 @@ font-size:22px;
 }
 `;
 
-const Span=styled.div`
+const Span = styled.div`
 font-size:30px;
 font-weight:500;
-color:${({theme})=>theme.secondary};
+color:${({ theme }) => theme.secondary};
 @media (max-width:600px){
 font-size:20px;
 }
 `;
 
-const Wrapper=styled.div`
+const Wrapper = styled.div`
 width:100%;
 max-width:1400px;
 padding:32px 0px;
@@ -49,7 +51,7 @@ display:flex;
 justify-content:center;
 `;
 
-const CardWrapper =styled.div`
+const CardWrapper = styled.div`
 display:grid;
 gap:20px;
 @media (min-width:1200px){
@@ -64,33 +66,64 @@ grid-template-columns:repeat(2,1fr);
 
 `;
 
-const Home =()=> {
-    const item={
-        photo:"https://media.istockphoto.com/id/1322104312/photo/freedom-chains-that-transform-into-birds-charge-concept.jpg?s=612x612&w=0&k=20&c=e2XUx498GotTLJn_62tPmsqj6vU48ZEkf0auXi6Ywh0=",
-        author:"shashinda",
-        prompt:"hello",
-    }
+const Home = () => {
+
+
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [filteredPosts, setFilteredPosts] = useState([]);
+
+  const getPosts =async ()=>{
+    setLoading(true);
+    await GetPosts()
+    .then((res)=>{
+      setLoading(false);
+      setPosts(res?.data?.data);
+      setFilteredPosts(res?.data?.data);
+    })
+    .catch((error)=>{
+      setError(error?.response?.data?.message);
+      setLoading(false);
+    })
+
+  };
+
+  useEffect(()=>{
+    getPosts();
+  },[]);
+
+
   return <Container>
     <Headline>Explore popular posts in the Community!
-        <Span>⦿ Generated with AI ⦿</Span>
+      <Span>⦿ Generated with AI ⦿</Span>
     </Headline>
-    <SearchBar/>
+    <SearchBar />
     <Wrapper>
-<CardWrapper>
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      {loading ? (
+         <CircularProgress/>
+      ) : (
+        <CardWrapper>
+          {filteredPosts.length === 0 ? <>No Post Found</> :
+            <>
+              {filteredPosts.slice()
+                .reverse()
+                .map((item, index) => (
+                  <ImageCard key={index} item={item} />
+                ))}
+            </>
+          }
 
-   <ImageCard item={item}/>
-   <ImageCard item={item}/>
-   <ImageCard item={item}/>
-   <ImageCard item={item}/>
-   <ImageCard item={item}/>
-   <ImageCard item={item}/>
-   <ImageCard item={item}/>
 
-    
-</CardWrapper>
+
+
+        </CardWrapper>
+      )}
     </Wrapper>
   </Container>;
-     
-  
+
+
 };
 export default Home;
