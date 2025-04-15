@@ -66,6 +66,23 @@ grid-template-columns:repeat(2,1fr);
 
 `;
 
+// ... previous imports
+const Footer = styled.div`
+  width: 100%;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 16px;
+  color: ${({ theme }) => theme.text_secondary};
+  background: ${({ theme }) => theme.bg};
+  border-top: 1px solid ${({ theme }) => theme.text_secondary + 40};
+
+  @media (max-width: 600px) {
+    font-size: 14px;
+    padding: 16px 0;
+  }
+`;
+
+
 const Home = () => {
 
 
@@ -140,6 +157,8 @@ const Home = () => {
         </CardWrapper>
       )}
     </Wrapper>
+    <Footer>© 2025 Shashinda Adithya. All rights reserved.</Footer>
+
   </Container>;
 
 
