@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import {useNavigate} from 'react-router-dom';
 import  Button  from './button';
 import TextInput from './TextInput';
 import { AutoAwesome, CreateRounded } from '@mui/icons-material';
+import { CreatePost, GenerateAIImage } from '../api';
 
 const Form = styled.div`
 flex: 1;
@@ -51,12 +53,51 @@ const  GenerateImageForm= ({
        setCreatePostLoading,
 }) => {
 
-    const  generateImageFun = ()=>{
-        setGenerateImageLoading(true);
-    }
+    // const  generateImageFun =async ()=>{
+    //     setGenerateImageLoading(true);
+    //     await GenerateAIImage({prompt:post.prompt}).then((res)=>{
+    //       setPost({...post,photo:`data:image/jpeg;base64,${res?.data?.photo}`});
+    //        setGenerateImageLoading(false);
+    //     })
+    //     .catch((error)=>{
+    //       console.log(error);
+    //     });
+    // }
+    const [error,setError]=useState("");
+    const  navigate =useNavigate();
+    const generateImageFun = async () => {
+      if (!post.prompt) return;
+  
+      setGenerateImageLoading(true);
+      try {
+        const res = await GenerateAIImage({ prompt: post.prompt });
+        if (res?.data?.photo) {
+          setPost({
+            ...post,
+            photo: res.data.photo, // Already includes base64 with proper data:image/png prefix
+          });
+        }
+      } catch (error) {
+       setError(error?.response?.data?.message);
 
-    const  createPostFun = ()=>{
+        console.error("Error generating image:", error);
+        alert("Failed to generate image. Please try again.");
+      } finally {
+        setGenerateImageLoading(false);
+      }
+    };
+  
+
+    const  createPostFun =async()=>{
         setCreatePostLoading(true);
+         await CreatePost(post).then((res)=>{
+          setCreatePostLoading(false);
+          navigate("/");
+        })
+        .catch((error)=>{
+          setError(error?.response?.data?.message);
+          setCreatePostLoading(false);
+        });
     }
 
   return (
@@ -82,6 +123,7 @@ const  GenerateImageForm= ({
          value={post.prompt}
          handelChange={(e)=>setPost({...post,prompt:e.target.value})}
          />
+         {error && <div style={{color:"red"}}>{error}</div>}
       ** You post the AI Generated Image to  the Community **
       </Body>
       <Actions>
